@@ -16,7 +16,7 @@ class App extends Component {
   initMap = () => {
 
     var map = new window.google.maps.Map(document.getElementById('map'), {
-      center: {lat: -34.397, lng: 150.644},
+      center: {lat: 17, lng: 78},
       zoom: 4
     });
     //Get User's Current Location
