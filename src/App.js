@@ -14,11 +14,23 @@ class App extends Component {
   }
 
   initMap = () => {
-    getLocation();
+
     var map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},
       zoom: 4
     });
+    //Get User's Current Location
+    if (window.navigator.geolocation) {
+      window.navigator.geolocation.getCurrentPosition((position) => {
+        var myLatLong = {lat: position.coords.latitude, lng: position.coords.longitude};
+        console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude);
+        map.setCenter(myLatLong); 
+      });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+
+    //Create Marker
     var marker = new window.google.maps.Marker({
       position: null,
       map: map
@@ -85,14 +97,5 @@ function loadScript(url) {
   index.parentNode.insertBefore(script, index);
 }
 
-function getLocation() {
-  if (window.navigator.geolocation) {
-    window.navigator.geolocation.getCurrentPosition((position) => {
-      console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude); 
-    });
-  } else {
-      alert("Geolocation is not supported by this browser.");
-  }
-}
 
 export default App;
