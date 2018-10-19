@@ -24,7 +24,8 @@ class App extends Component {
       window.navigator.geolocation.getCurrentPosition((position) => {
         var myLatLong = {lat: position.coords.latitude, lng: position.coords.longitude};
         console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude);
-        map.setCenter(myLatLong); 
+        map.setCenter(myLatLong);
+        map.setZoom(8); 
       });
     } else {
         alert("Geolocation is not supported by this browser.");
