@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import axios from 'axios';
 import './App.css';
 
 class App extends Component {
 
-componentDidMount() {
-  this.renderMap();
-}
+  componentDidMount() {
+    this.renderMap();
+  }
 
   renderMap = () => {
     loadScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyCpAwOhD9MaX9RNinoKze2fnvKSCO8TKT0&callback=initMap");
@@ -14,11 +14,53 @@ componentDidMount() {
   }
 
   initMap = () => {
+    getLocation();
     var map = new window.google.maps.Map(document.getElementById('map'), {
       center: {lat: -34.397, lng: 150.644},
-      zoom: 1
+      zoom: 4
+    });
+    var marker = new window.google.maps.Marker({
+      position: null,
+      map: map
+    });  
+    var infowindow = new window.google.maps.InfoWindow();
+    var contentString = '';
+    window.google.maps.event.addListener(map,'click',function(event) {                
+      marker.setPosition(event.latLng);
+      var loc = `${event.latLng.lat()},${event.latLng.lng()}`;
+      var date = new Date();
+      var timestamp = date.getTime()/1000 + date.getTimezoneOffset() * 60;
+      const apikey = 'AIzaSyDiCb7PL8xk8qwLTctxZ_Vpj-mSrsLyqGU';
+      const apiKeyForWeather = '3d238a8df02df0edb3da0a5227b6aea0';
+      var apiForTimezone = `https://maps.googleapis.com/maps/api/timezone/json?location=${loc}&timestamp=${timestamp}&key=${apikey}`;
+      var apiForWeather = `https://api.openweathermap.org/data/2.5/weather?lat=${event.latLng.lat()}&lon=${event.latLng.lng()}&APPID=${apiKeyForWeather}`;
+
+      //Fetch date and time for given coordinates
+      axios.get(apiForTimezone)
+      .then(response => {
+        let timeData = response.data;
+        console.log(timeData);
+        if(timeData.status === 'OK') {
+          var offsets = timeData.dstOffset * 1000 + timeData.rawOffset * 1000;
+          var localdate = new Date(timestamp * 1000 + offsets) 
+          contentString = localdate.toLocaleString();          
+        }  
+          //Fetch Weather Details for given coordinates
+          axios.get(apiForWeather)
+          .then(response => {
+            var weatherData = ` Weather Details:Temperature: ${response.data.main.temp} Pressure: ${response.data.main.pressure} Humidity: ${response.data.main.humidity} Min Temp: ${response.data.main.temp_min} Max Temp: ${response.data.main.temp_max}`;
+            if(response.data.name !== "" && response.data.sys.country !== "")
+              weatherData += `  Place: ${response.data.name} Country: ${response.data.sys.country}`; 
+            contentString += weatherData;            
+            infowindow.setContent(JSON.stringify(contentString));
+            infowindow.open(map,marker);
+          })
+          .catch(err => console.log(err));  
+        })
+        .catch(err => console.log(err)); 
     });
   }
+
   render() {
     return (
       <main>
@@ -41,6 +83,16 @@ function loadScript(url) {
   script.async = true;
   script.defer = true;
   index.parentNode.insertBefore(script, index);
+}
+
+function getLocation() {
+  if (window.navigator.geolocation) {
+    window.navigator.geolocation.getCurrentPosition((position) => {
+      console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude); 
+    });
+  } else {
+      alert("Geolocation is not supported by this browser.");
+  }
 }
 
 export default App;
