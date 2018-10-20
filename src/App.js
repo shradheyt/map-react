@@ -6,6 +6,7 @@ class App extends Component {
 
   componentDidMount() {
     this.renderMap();
+    
   }
 
   renderMap = () => {
@@ -35,9 +36,13 @@ class App extends Component {
     var marker = new window.google.maps.Marker({
       position: null,
       map: map
-    });  
+    }); 
+
+    //Create InfoWindow 
     var infowindow = new window.google.maps.InfoWindow();
     var contentString = '';
+
+    //Add event listener on Map
     window.google.maps.event.addListener(map,'click',function(event) {                
       marker.setPosition(event.latLng);
       var loc = `${event.latLng.lat()},${event.latLng.lng()}`;
@@ -63,7 +68,7 @@ class App extends Component {
           .then(response => {
             var weatherData = ` Weather Details:Temperature: ${response.data.main.temp} Pressure: ${response.data.main.pressure} Humidity: ${response.data.main.humidity} Min Temp: ${response.data.main.temp_min} Max Temp: ${response.data.main.temp_max}`;
             if(response.data.name !== "" && response.data.sys.country !== "")
-              weatherData += `  Place: ${response.data.name} Country: ${response.data.sys.country}`; 
+              contentString += `  Place: ${response.data.name} Country: ${response.data.sys.country}`; 
             contentString += weatherData;            
             infowindow.setContent(JSON.stringify(contentString));
             infowindow.open(map,marker);
@@ -85,8 +90,9 @@ class App extends Component {
 }
 
 /*
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
-    async defer></script>
+  @api loadScript
+  @params url: String
+  @desc Take url as input which needs to be added as in script tag.It will create script tag dynamically and add.
 */
 
 function loadScript(url) {
@@ -97,6 +103,5 @@ function loadScript(url) {
   script.defer = true;
   index.parentNode.insertBefore(script, index);
 }
-
 
 export default App;
