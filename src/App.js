@@ -20,18 +20,7 @@ class App extends Component {
       center: {lat: 17, lng: 78},
       zoom: 4
     });
-    //Get User's Current Location
-    if (window.navigator.geolocation) {
-      window.navigator.geolocation.getCurrentPosition((position) => {
-        var myLatLong = {lat: position.coords.latitude, lng: position.coords.longitude};
-        console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude);
-        map.setCenter(myLatLong);
-        map.setZoom(8); 
-      });
-    } else {
-        alert("Geolocation is not supported by this browser.");
-    }
-
+    
     //Create Marker
     var marker = new window.google.maps.Marker({
       position: null,
@@ -40,10 +29,54 @@ class App extends Component {
 
     //Create InfoWindow 
     var infowindow = new window.google.maps.InfoWindow();
-
+    //Get User's Current Location
+    if (window.navigator.geolocation) {
+      window.navigator.geolocation.getCurrentPosition((position) => {
+        var myLatLong = {lat: position.coords.latitude, lng: position.coords.longitude};
+        console.log("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude);
+        map.setCenter(myLatLong);
+        map.setZoom(8); 
+        //custom event object
+        var event = {};
+        event.latLng = new window.google.maps.LatLng(position.coords.latitude, position.coords.longitude)    
+        fetchDetailsAndShow(map, marker, infowindow, event);
+      });
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
     //Add event listener on Map
     window.google.maps.event.addListener(map,'click',function(event) {  
-      var contentString = '';              
+      fetchDetailsAndShow(map, marker, infowindow, event);
+    });
+  }
+
+  render() {
+    return (
+      <main>
+        <div id="map"></div>
+      </main>
+      
+    );
+  }
+}
+
+/*
+  @api loadScript
+  @params url: String
+  @desc Take url as input which needs to be added as in script tag.It will create script tag dynamically and add.
+*/
+
+function loadScript(url) {
+  var index = window.document.getElementsByTagName("script")[0];
+  var script = window.document.createElement("script");
+  script.src = url;
+  script.async = true;
+  script.defer = true;
+  index.parentNode.insertBefore(script, index);
+}
+
+function fetchDetailsAndShow(map, marker, infowindow, event) {
+  var contentString = '';              
       marker.setPosition(event.latLng);
       var loc = `${event.latLng.lat()},${event.latLng.lng()}`;
       var date = new Date();
@@ -76,32 +109,5 @@ class App extends Component {
           .catch(err => console.log(err));  
         })
         .catch(err => console.log(err)); 
-    });
-  }
-
-  render() {
-    return (
-      <main>
-        <div id="map"></div>
-      </main>
-      
-    );
-  }
 }
-
-/*
-  @api loadScript
-  @params url: String
-  @desc Take url as input which needs to be added as in script tag.It will create script tag dynamically and add.
-*/
-
-function loadScript(url) {
-  var index = window.document.getElementsByTagName("script")[0];
-  var script = window.document.createElement("script");
-  script.src = url;
-  script.async = true;
-  script.defer = true;
-  index.parentNode.insertBefore(script, index);
-}
-
 export default App;
