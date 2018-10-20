@@ -40,10 +40,10 @@ class App extends Component {
 
     //Create InfoWindow 
     var infowindow = new window.google.maps.InfoWindow();
-    var contentString = '';
 
     //Add event listener on Map
-    window.google.maps.event.addListener(map,'click',function(event) {                
+    window.google.maps.event.addListener(map,'click',function(event) {  
+      var contentString = '';              
       marker.setPosition(event.latLng);
       var loc = `${event.latLng.lat()},${event.latLng.lng()}`;
       var date = new Date();
