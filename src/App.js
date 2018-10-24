@@ -95,18 +95,18 @@ function fetchDetailsAndShow(map, marker, infowindow, event) {
           var offsets = timeData.dstOffset * 1000 + timeData.rawOffset * 1000;
           var localdate = new Date(timestamp * 1000 + offsets) 
           contentString = localdate.toLocaleString();          
-        }  
+        } else throw new Error('Invalid response!');
+
           //Fetch Weather Details for given coordinates
-          axios.get(apiForWeather)
-          .then(response => {
-            var weatherData = ` Weather Details:Temperature: ${response.data.main.temp} Pressure: ${response.data.main.pressure} Humidity: ${response.data.main.humidity} Min Temp: ${response.data.main.temp_min} Max Temp: ${response.data.main.temp_max}`;
-            if(response.data.name !== "" && response.data.sys.country !== "")
-              contentString += `  Place: ${response.data.name} Country: ${response.data.sys.country}`; 
-            contentString += weatherData;            
-            infowindow.setContent(JSON.stringify(contentString));
-            infowindow.open(map,marker);
-          })
-          .catch(err => console.log(err));  
+          return axios.get(apiForWeather)      
+        })
+        .then(response => {
+          var weatherData = ` Weather Details:Temperature: ${response.data.main.temp} Pressure: ${response.data.main.pressure} Humidity: ${response.data.main.humidity} Min Temp: ${response.data.main.temp_min} Max Temp: ${response.data.main.temp_max}`;
+          if(response.data.name !== "" && response.data.sys.country !== "")
+            contentString += `  Place: ${response.data.name} Country: ${response.data.sys.country}`; 
+          contentString += weatherData;            
+          infowindow.setContent(JSON.stringify(contentString));
+          infowindow.open(map,marker);
         })
         .catch(err => console.log(err)); 
 }
